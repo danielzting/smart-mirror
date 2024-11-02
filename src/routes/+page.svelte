@@ -1,24 +1,44 @@
 <script>
 	let time = new Date();
-
 	setInterval(() => (time = new Date()), 1000);
+
+    const getWeather = async () => (await fetch('https://api.open-meteo.com/v1/forecast?latitude=30.430324&longitude=-97.74324&current=temperature_2m,weather_code&hourly=temperature_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch&timezone=auto')).json();
+    let weather = getWeather();
 </script>
 
 <main>
-	<h2>
-		{time.toLocaleString('en-US', {
-			year: 'numeric',
-			month: 'long',
-			day: 'numeric'
-		})}
-	</h2>
-	<h1>
-		{time.toLocaleString('en-US', {
-			hour: 'numeric',
-			minute: 'numeric',
-			second: 'numeric'
-		})}
-	</h1>
+    <section id="clock">
+        <h2>
+            {time.toLocaleString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            })}
+        </h2>
+        <h1>
+            {time.toLocaleString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                second: 'numeric'
+            })}
+        </h1>
+    </section>
+    <section id="weather">
+        {#await weather}
+            <p>Loading weather...</p>
+        {:then data}
+            <h1>{Math.round(data.current.temperature_2m)}</h1>
+            {#each data.daily.time as day, index}
+                <h2>
+                    {new Date(day).toLocaleString('en-US', { weekday: 'short', timeZone: 'UTC' })}
+                    {Math.round(data.daily.temperature_2m_max[index])}
+                    {Math.round(data.daily.temperature_2m_min[index])}
+                </h2>
+            {/each}
+        {:catch error}
+            <p>{error}</p>
+        {/await}
+    </section>
 </main>
 
 <style>
@@ -32,6 +52,8 @@
 		filter: blur(0.5px);
 		text-transform: uppercase;
 		text-shadow: 0 0 1px white;
+        display: flex;
+        justify-content: space-between;
 	}
 
 	@font-face {
@@ -147,10 +169,11 @@
 		left: 0;
 		bottom: 0;
 		right: 0;
-		background: rgba(18, 16, 16, 0.1);
-		opacity: 0;
-		z-index: 2;
+		/* background: rgba(18, 16, 16, 0.1); */
+        background: repeating-linear-gradient(0deg, color-mix(in srgb, rgba(49%, 98%, 72%) 100%, transparent) 0 1px, transparent 1px 50px),repeating-linear-gradient(90deg, color-mix(in srgb, rgba(49%, 98%, 72%) 100%, transparent) 0 1px, transparent 1px 50px);
+		opacity: 1;
+		z-index: -1;
 		pointer-events: none;
-		animation: flicker 0.15s infinite;
+		/* animation: flicker 0.15s infinite; */
 	}
 </style>
