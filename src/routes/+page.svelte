@@ -9,8 +9,9 @@
 			)
 		).json();
 	let weather = getWeather();
+	setInterval(() => (weather = getWeather()), 1000 * 60);
 
-	const getVerse = async () => fetch('https://www.bible.com/verse-of-the-day');
+	const getVerse = async () => (await fetch('https://beta.ourmanna.com/api/v1/get')).text();
 	let verse = getVerse();
 </script>
 
@@ -76,6 +77,16 @@
 			{/await}
 		</section>
 	</section>
+	<section id="birthdays"></section>
+	<section id="verse">
+		{#await verse}
+			<p>Loading verse of the day...</p>
+		{:then data}
+			<p>{data}</p>
+		{:catch error}
+			<p>Error loading verse of the day: {error}</p>
+		{/await}
+	</section>
 </main>
 
 <style>
@@ -92,6 +103,9 @@
 		text-transform: uppercase;
 		text-shadow: 0 0 10px orange;
 		position: relative;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
 	}
 
 	@font-face {
@@ -272,5 +286,12 @@
 		margin-bottom: 20px;
 		border-radius: 20px;
 		font-size: 80pt;
+	}
+
+	#verse {
+		margin: 0 auto;
+		font-size: 40px;
+		text-align: center;
+		transform: scaleX(0.6);
 	}
 </style>
